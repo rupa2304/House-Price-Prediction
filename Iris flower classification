@@ -1,0 +1,57 @@
+# Importing necessary libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.preprocessing import StandardScaler
+
+# Load the Iris dataset
+iris = datasets.load_iris()
+X = iris.data[:, :2]  # Taking only the first two features (sepal length and width)
+y = iris.target
+
+# Visualizing the data
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis')
+plt.title('Iris Flowers Classification Based on Sepal Length and Width')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Sepal Width (cm)')
+plt.show()
+
+# Splitting the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardizing the features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Training a logistic regression model
+model = LogisticRegression()
+model.fit(X_train_scaled, y_train)
+
+# Making predictions on the test set
+y_pred = model.predict(X_test_scaled)
+
+# Evaluating the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy:.2f}')
+
+# Classification Report
+print('\nClassification Report:\n', classification_report(y_test, y_pred))
+
+# Visualizing the decision boundaries
+h = 0.02  # step size in the mesh
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+Z = Z.reshape(xx.shape)
+
+plt.contourf(xx, yy, Z, cmap='viridis', alpha=0.8)
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis', edgecolors='k')
+plt.title('Decision Boundaries for Iris Flowers Classification')
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Sepal Width (cm)')
+plt.show()
